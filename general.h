@@ -5,6 +5,7 @@
 
 struct Paquet {
 	Carte cartes [NBCARTES];
+	bool presente[NBCARTES];
 	int combien;
 
 };
