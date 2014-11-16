@@ -55,63 +55,42 @@ void afficherMain(Main* main) {
 		afficherCarte(&(main->cartes_En_Main[i]));
 }
 
-
-void changer_carte(Paquet* p, Main* m) {
+//Demande à l'utilisateur s'il souhaite se défausser de chaque carte dans sa main
+void demander_Cartes_Defausser(Paquet* p, Main* m) {
+	int choix;
 	int i;
-	int choix = 0;
-	int position; // position de la carte à modifier
-	puts("Veuillez rentrer '1' pour defausser ou '0' pour garder votre carte\n");
+	assert(main_est_correcte(m));
 
-
-	// Tasser les cartes qu'on garde
-	for (i = 0; i < NBCARTESENMAIN; ++i) {
+	for (i = 0; i < NBCARTES_MAIN; ++i) {
 
 		printf("Souhaitez vous defausser votre ");
 		afficherCarte((&(m->cartes_En_Main[i])));
 		scanf("%d", &choix); // decidé de garder ou de defausser la carte
 
-
 		while (choix != 1 && choix != 0) { // vérifier si la valeur entrée est correcte
 			puts("Veuillez entrer '1' ou '0'");
 			scanf("%d", &choix);
 		}
-
-		if (choix == 1) { // tasse la main d'un cran si le joueur entre 1
-			for (position = i; position < (NBCARTESENMAIN - 1);) {
-				m->cartes_En_Main[position] = m->cartes_En_Main[++position];
-			}
-			--m->compteur;
+		if (choix == 1) {
+			m->defausser[i] = true;// si vrai, la carte sera defausser
 		}
 	}
 }
 
-/*
-// PAS FINIE
-unsigned int defausser(int *t) { 
-	unsigned int compteur;
-	unsigned int position;
-	unsigned int i ;
-	scanf("entrez le nombre de cartes à defausser : %d",&compteur);
-	for ( i = 0 ; i < compteur ; ++i ) {
-		scanf("entrez la position de la carte à defausser : %d", &position);
-		 if (position < 0 && position > NBCARTES_EN_MAIN) {
-			 scanf("entrez une position entre 0 et 4 !! : %d", &position);
-		 }
-		 ;
-		t[i] = position ;
+// remplace directement les cartes marquées défausser, par une nouvelle carte du paquet non piocher.
+void changer_carte(Paquet* p, Main* m) {
+
+	assert(main_est_correcte(m));
+	puts("Veuillez rentrer '1' pour defausser ou '0' pour garder votre carte\n");
+	demander_Cartes_Defausser(p, m);// changer le bool de défausser pour savoir quel carte sera défausser 
+
+	unsigned int i;
+	for (i = 0; i < NBCARTESENMAIN; ++i) {
+		if (m->defausser[i]) {
+			m->compteur = i;// on fait appel à ajouterCarte qui néccesite la valeur de compteur pour désigner la position de la carte à remplacer.
+			ajouterCarte(m, &(piocher(p)));//remplace la carte à l'emplacement compteur (=i) et remet le bool défausser à la valeur false.
+		}
 	}
-
-	return t[i];
+	m->compteur = NBCARTESENMAIN; // le compteur sera toujours à la fin égal à NBCARTESENMAIN
+	assert(main_est_correcte(m));
 }
-
-
-
-void tasser_Main(Main* m) {
-	int* tableau;
-	defausser(tableau);
-}
-
-*/
-
-
-
