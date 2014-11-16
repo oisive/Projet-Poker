@@ -51,6 +51,7 @@ enum {NBCARTESENMAIN = 5};
 struct Main{
 	Carte cartes_En_Main [NBCARTES_MAIN];
 	int compteur;
+	bool defausser[NBCARTESENMAIN];
 };
 typedef struct Main Main;
 
@@ -59,10 +60,12 @@ void completerMain(Main*, Paquet*);
 void afficherMain(Main*);
 Main creerMain();
 void ajouterCarte(Main*, Carte*);
+void changer_carte(Paquet*, Main*);
+void demander_Cartes_Defausser(Paquet*, Main*);
+
 bool estPleine(Main*);
-unsigned int defausser(int tableau[]);
-void tasser_Main(Main*);
-void analyseMain(Main*); 
+bool main_est_correcte(Main* m);
+void analyseMain(Main*); // a ecrire
 
 
 // JOUEUR
@@ -70,10 +73,10 @@ void analyseMain(Main*);
 struct Joueur{
 	Main main; 
 	int mainAnalysee[TAILLECOMBINAISON]; 
-	int argent; 
-	int position;
-	int taille; // vaut TAILLECOMBINAISON UTILE POUR FONCTIONS
-
+	unsigned int argent; 
+	unsigned int position;
+	unsigned int taille; // vaut TAILLECOMBINAISON UTILE POUR FONCTIONS
+	// les unsigned peuvent poser des pb de conversion
 };
 typedef struct Joueur Joueur;
 
@@ -97,13 +100,25 @@ void initialiserTable(Table *desk);
 Table creerTable();
 void afficherTable(Table *desk);
 void changementPosition(Table *desk);
-void updateArgent(Table *desk);
+void updateArgent(Table *desk); // devrait devenir useless
 void updatePot(Table *desk);
+int calculPot(Table *desk);
 void resetPot(Table *desk);
 void recapJoueur(Table *desk);
 void recapJoueur(Table *desk, int pos);
-
-
+int miseASuivre(Table *desk);
+bool peutSuivre(Table *desk, int numJoueur);
+void faitTapis(Table *desk, int numJoueur, int decision);
+void blindEntree(Table *desk);
+void resetMise(Table *desk);
+void resetTour(Table *desk);
+void joueurCheck();
+void joueurMise(int mise);
+void joueurCouche();
+void choixInvalide();
+void miser(Table *desk, int numJoueur, int choix);
+void afficherMises(Table *desk);
+bool personneAuTapis(Table *desk);
 
 void creerTableauCombinaison(Main *main, int tableau[], int taille);
 void initTableau(int tab[], int taille);
