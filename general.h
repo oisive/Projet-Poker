@@ -75,7 +75,8 @@ struct Joueur{
 	int mainAnalysee[TAILLECOMBINAISON]; 
 	unsigned int argent; 
 	unsigned int position;
-	unsigned int taille; // vaut TAILLECOMBINAISON UTILE POUR FONCTIONS
+	unsigned int taille;	// vaut TAILLECOMBINAISON UTILE POUR FONCTIONS
+	unsigned int probabilite;
 	// les unsigned peuvent poser des pb de conversion
 };
 typedef struct Joueur Joueur;
@@ -104,21 +105,28 @@ void updateArgent(Table *desk); // devrait devenir useless
 void updatePot(Table *desk);
 int calculPot(Table *desk);
 void resetPot(Table *desk);
-void recapJoueur(Table *desk);
+void recapJoueur(Table *desk); 
 void recapJoueur(Table *desk, int pos);
 int miseASuivre(Table *desk);
 bool peutSuivre(Table *desk, int numJoueur);
-void faitTapis(Table *desk, int numJoueur, int decision);
+//void faitTapis(Table *desk, int numJoueur, int decision);
 void blindEntree(Table *desk);
 void resetMise(Table *desk);
 void resetTour(Table *desk);
-void joueurCheck();
-void joueurMise(int mise);
-void joueurCouche();
-void choixInvalide();
 void miser(Table *desk, int numJoueur, int choix);
 void afficherMises(Table *desk);
 bool personneAuTapis(Table *desk);
+int miseJoueur(Table *desk, int numJoueur);
+void choixParole(Table *desk, int numJoueur); // Joueur fictif
+
+// Fonctions affichage choix du joueur 
+void joueurCheck();
+void joueurMise(int mise);
+void joueurFaitTapis(int valeurTapis);
+void joueurCouche();
+void choixInvalide();
+
+
 
 void creerTableauCombinaison(Main *main, int tableau[], int taille);
 void initTableau(int tab[], int taille);
