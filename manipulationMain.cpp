@@ -25,9 +25,12 @@ Main creerMain() {
 	return main;
 }
 
+
 // Ajoute une carte à une main 
 void ajouterCarte(Main* main, Carte *carte) {
-	main->cartes_En_Main[main->compteur++] = *carte;
+	main->cartes_En_Main[main->compteur] = *carte;
+	main->defausser[(main->compteur)] = false;
+	main->compteur++;
 }
 
 // Dit si la main est pleine ou non 
@@ -61,16 +64,16 @@ void demander_Cartes_Defausser(Paquet* p, Main* m) {
 	int i;
 	assert(main_est_correcte(m));
 
-	for (i = 0; i < NBCARTES_MAIN; ++i) {
+	for ( i = 0 ; i < NBCARTES_MAIN ; ++i ) {
 
 		printf("Souhaitez vous defausser votre ");
 		afficherCarte((&(m->cartes_En_Main[i])));
-		scanf("%d", &choix); // decidé de garder ou de defausser la carte
+		scanf("%d",&choix); // decidé de garder ou de defausser la carte
 
 		while (choix != 1 && choix != 0) { // vérifier si la valeur entrée est correcte
 			puts("Veuillez entrer '1' ou '0'");
-			scanf("%d", &choix);
-		}
+			scanf("%d",&choix);
+			}
 		if (choix == 1) {
 			m->defausser[i] = true;// si vrai, la carte sera defausser
 		}
@@ -82,15 +85,16 @@ void changer_carte(Paquet* p, Main* m) {
 
 	assert(main_est_correcte(m));
 	puts("Veuillez rentrer '1' pour defausser ou '0' pour garder votre carte\n");
-	demander_Cartes_Defausser(p, m);// changer le bool de défausser pour savoir quel carte sera défausser 
+	demander_Cartes_Defausser(p,m);// changer le bool de défausser pour savoir quel carte sera défausser 
 
 	unsigned int i;
-	for (i = 0; i < NBCARTESENMAIN; ++i) {
+		for (i = 0; i < NBCARTESENMAIN;++i) {
 		if (m->defausser[i]) {
 			m->compteur = i;// on fait appel à ajouterCarte qui néccesite la valeur de compteur pour désigner la position de la carte à remplacer.
-			ajouterCarte(m, &(piocher(p)));//remplace la carte à l'emplacement compteur (=i) et remet le bool défausser à la valeur false.
+			ajouterCarte(m,&(piocher(p)));//remplace la carte à l'emplacement compteur (=i) et remet le bool défausser à la valeur false.
 		}
 	}
 	m->compteur = NBCARTESENMAIN; // le compteur sera toujours à la fin égal à NBCARTESENMAIN
 	assert(main_est_correcte(m));
+
 }
