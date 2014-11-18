@@ -3,9 +3,9 @@
 
 // CARTE
 
-enum Couleur {CARREAU, TREFLE, COEUR, PIQUE};
-enum Valeur {DEUX=2, TROIS=3, QUATRE=4,CINQ=5,SIX=6,SEPT=7,HUIT=8,NEUF=9,DIX=10, VALET = 11, DAME = 12, ROI = 13, AS = 14};
-enum {NBVALEURS = 13, NBCOULEURS = 4, NBCARTES = NBCOULEURS * NBVALEURS, NBCARTES_MAIN = 5, NBJOUEURS = 2, NBCOMBINAISONS = 9, TAILLECOMBINAISON = 11, ARGENT = 1000, MISEDEPART = 20, MISEUR = 0, POSITION_JOUEUR = 0};
+enum Couleur { CARREAU, TREFLE, COEUR, PIQUE };
+enum Valeur { DEUX = 2, TROIS = 3, QUATRE = 4, CINQ = 5, SIX = 6, SEPT = 7, HUIT = 8, NEUF = 9, DIX = 10, VALET = 11, DAME = 12, ROI = 13, AS = 14 };
+enum { NBVALEURS = 13, NBCOULEURS = 4, NBCARTES = NBCOULEURS * NBVALEURS, NBCARTES_MAIN = 5, NBJOUEURS = 2, NBCOMBINAISONS = 9, TAILLECOMBINAISON = 11, ARGENT = 1000, MISEDEPART = 20, MISEUR = 0, POSITION_JOUEUR = 0 };
 
 struct Carte {
 	unsigned int rang;
@@ -14,7 +14,7 @@ typedef struct Carte Carte;
 
 // fonctions indispensables
 Carte creerCarte(Valeur, Couleur);
-const char* getValeur(const Carte*); 
+const char* getValeur(const Carte*);
 const char* getCouleur(const Carte*);
 unsigned int getIntVal(Carte c);
 unsigned int getIntVal(const Carte*);
@@ -30,13 +30,13 @@ Carte creerCarte(unsigned int rang);
 // PAQUET
 
 struct Paquet {
-	Carte cartes [NBCARTES];
+	Carte cartes[NBCARTES];
 	bool presente[NBCARTES];
 	int combien;
 };
 typedef struct Paquet Paquet;
 
-enum { PLEIN = true, VIDE = false } ;
+enum { PLEIN = true, VIDE = false };
 Paquet creerPaquet(bool plein);
 void afficherPaquet(Paquet*);
 Carte piocher(Paquet*); // au hasard
@@ -46,10 +46,10 @@ Carte piocher(Paquet*); // au hasard
 // MAIN 
 
 
-enum {NBCARTESENMAIN = 5};
+enum { NBCARTESENMAIN = 5 };
 
 struct Main{
-	Carte cartes_En_Main [NBCARTES_MAIN];
+	Carte cartes_En_Main[NBCARTES_MAIN];
 	int compteur;
 	bool defausser[NBCARTESENMAIN];
 };
@@ -71,9 +71,9 @@ void analyseMain(Main*); // a ecrire
 // JOUEUR
 
 struct Joueur{
-	Main main; 
-	int mainAnalysee[TAILLECOMBINAISON]; 
-	unsigned int argent; 
+	Main main;
+	int mainAnalysee[TAILLECOMBINAISON];
+	unsigned int argent;
 	unsigned int position;
 	unsigned int taille;	// vaut TAILLECOMBINAISON UTILE POUR FONCTIONS
 	unsigned int probabilite;
@@ -93,9 +93,9 @@ void affichageJoueur(Joueur *player);
 struct Table{
 	int mise[NBJOUEURS];
 	int pot;
-	Joueur numero[NBJOUEURS]; 
+	Joueur numero[NBJOUEURS];
 };
-typedef struct Table Table; 
+typedef struct Table Table;
 
 void initialiserTable(Table *desk);
 Table creerTable();
@@ -105,7 +105,7 @@ void updateArgent(Table *desk); // devrait devenir useless
 void updatePot(Table *desk);
 int calculPot(Table *desk);
 void resetPot(Table *desk);
-void recapJoueur(Table *desk); 
+void recapJoueur(Table *desk);
 void recapJoueur(Table *desk, int pos);
 int miseASuivre(Table *desk);
 bool peutSuivre(Table *desk, int numJoueur);
@@ -117,7 +117,18 @@ void miser(Table *desk, int numJoueur, int choix);
 void afficherMises(Table *desk);
 bool personneAuTapis(Table *desk);
 int miseJoueur(Table *desk, int numJoueur);
-void choixParole(Table *desk, int numJoueur); // Joueur fictif
+
+// Fonctions IA
+void choixParoleIA(Table *desk, int numJoueur); // Joueur fictif
+void influenceArgentIA(Table *desk, int numJoueur);
+void influenceMiseAdvIA(Table *desk, int numJoueur);
+void influencePositionIA(Table *desk, int numJoueur);
+time_t tpsReaction(time_t tpsA, time_t tpsB);
+void influenceTpsReactionIA(Table *desk, int numJoueur, time_t tps);
+void calculProba(Table *desk, int numJoueur);
+int meilleureCombinaison(Table *desk, int numJoueur);
+void influenceValeurCartesIA(Table *desk, int numJoueur);
+
 
 // Fonctions affichage choix du joueur 
 void joueurCheck();
