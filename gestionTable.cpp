@@ -17,13 +17,14 @@ void initialiserTable(Table *desk){
 		desk->numero[i].taille = TAILLECOMBINAISON;
 		desk->numero[i].mainAnalysee[desk->numero[i].taille];
 		desk->numero[i].argent = ARGENT;
+		desk->numero[i].probabilite = 0;
 		if (desk->numero[i].position == MISEUR)
 			desk->numero[i].argent -= MISEDEPART;
 		desk->numero[i].position = i;
 	}
 }
 
-// Crée une table et l'initialise DECONSEILLE
+// Crée une table et l'initialise DECONSEILLE PAS A JOUR
 Table creerTable(){
 	int i; 
 	Table desk;
@@ -39,7 +40,7 @@ Table creerTable(){
 	return desk;
 }
 
-// Affiche la table passée en paramètre
+// Affiche la table passée en paramètre 
 void afficherTable(Table *desk){
 	int i; 
 	printf("La mise d'entree est de %d\n", desk->mise[MISEUR]);
@@ -54,7 +55,7 @@ void afficherTable(Table *desk){
 	}
 }
 
-// Affiche les principales infos pour le joueur
+// Affiche les principales infos pour le joueur PAS A JOUR
 void recapJoueur(Table *desk){
 	printf("La mise d'entree est de %d\n", desk->mise[MISEUR]);
 	printf("Le pot est de %d\n", desk->pot);
@@ -72,7 +73,7 @@ void recapJoueur(Table *desk){
 	puts("\n");
 }
 
-// Affiche les principales infos pour le joueur à la position pos
+// Affiche les principales infos pour le joueur à la position pos PAS A JOUR
 void recapJoueur(Table *desk, int pos){
 	printf("La mise d'entree est de %d\n", desk->mise[MISEUR]);
 	printf("Le pot est de %d\n", desk->pot);
@@ -124,6 +125,7 @@ int calculPot(Table *desk){
 	return pot;
 }
 
+// devrait devenir useless 
 void updatePot(Table *desk){
 	int i;
 	for (i = 0; i < NBJOUEURS; i++){
@@ -146,9 +148,16 @@ void resetMise(Table *desk){
 	}
 }
 
+void resetProbabilite(Table *desk){
+	int i;
+	for (i = 1; i < NBJOUEURS; i++)
+		desk->numero[i].probabilite = 0;
+}
+
 void resetTour(Table *desk){
 	resetMise(desk);
 	resetPot(desk);
+	resetProbabilite(desk);
 	changementPosition(desk);
 }
 
@@ -193,13 +202,15 @@ bool peutSuivre(Table *desk, int numJoueur){
 	return booleen;
 }
 
-
+/* FONCTION PAS TOP, A REPRENDRE A LA RIGUEUR
 void faitTapis(Table *desk, int numJoueur, int decision){ // Lui demander s'il fait tapis, stocker dans décision, 0 signifie non, le reste oui
 	int i;
 	int grosseMise = miseASuivre(desk);
 
 	if (!peutSuivre(desk, numJoueur) && decision){ // S'il ne peut pas suivre mais fait tapis
 		desk->mise[desk->numero[numJoueur].position] = desk->numero[numJoueur].argent; // Il met tout en jeu
+		desk->numero[numJoueur].argent = 0;	
+
 		for (i = 0; i < NBJOUEURS; i++){
 			if (desk->mise[desk->numero[i].position] == grosseMise){
 				desk->numero[i].argent += (desk->mise[desk->numero[i].position] - desk->mise[desk->numero[numJoueur].position]);
@@ -209,6 +220,7 @@ void faitTapis(Table *desk, int numJoueur, int decision){ // Lui demander s'il f
 	}
 	// else : rien du tout, le joueur ne continue pas le tour
 }
+*/
 
 // Renvoie true si quelqu'un n'a plus d'argent
 bool personneAuTapis(Table *desk){
@@ -223,21 +235,69 @@ bool personneAuTapis(Table *desk){
 
 // Gere la mise, a perfectionner surtout sur le retour utilisateur
 void miser(Table *desk, int numJoueur, int choix){
-	int grosseMise = miseASuivre(desk);
+	int grosseMise = miseASuivre(desk);			// Très logiquement, avec les conditions de cette fonction, si un joueur est au tapis, la plus grosse mise de la table est son tapis
+	int montantArendre = 0;
+	int i, j;
 
-	if (choix == 0 && desk->mise[desk->numero[numJoueur].position] >= grosseMise)
+	 if (choix == 0 && desk->mise[desk->numero[numJoueur].position] >= grosseMise)	// S'il ne mise rien et qu'il a précédemment misé assez
 		joueurCheck();
-	else if (choix + desk->mise[desk->numero[numJoueur].position] >= miseASuivre(desk) && personneAuTapis(desk)){
+
+	else if(choix >= desk->numero[numJoueur].argent && personneAuTapis(desk)){	// S'il mise tout ce qu'il a et que personne n'est au tapis, il fait tapis
+		desk->mise[desk->numero[numJoueur].position] += desk->numero[numJoueur].argent;
+		desk->pot += desk->numero[numJoueur].argent;
+			
+			for(i = 0 ; i < NBJOUEURS ; i++)	// On parcourt les joueurs
+				{					
+					if(i == desk->numero[numJoueur].position)
+						break;
+					else if(desk->mise[i] > desk->numero[numJoueur].argent){		// Si l'un a misé plus
+						for(j = 0 ; j < NBJOUEURS ; j++)					// On cherche son numéro 
+						{			
+							if(desk->numero[j].position == i)				// Quand on l'a obtenu
+								{
+									montantArendre = (desk->mise[i] - desk->numero[numJoueur].argent);	// On calcule ce qu'il a misé de plus
+									desk->numero[j].argent += montantArendre;	// On lui rembourse
+									desk->pot -= montantArendre;	// Et on actualise le pot
+								}
+						}
+					}
+					desk->mise[i] = desk->numero[numJoueur].argent;	// Enfin, on modifie sa mise pour qu'elle corresponde au tapis
+				}
+		
+			joueurFaitTapis(desk->numero[numJoueur].argent);
+
+		desk->numero[numJoueur].argent = 0;		
+	}
+
+	else if (choix + desk->mise[desk->numero[numJoueur].position] >= miseASuivre(desk) && personneAuTapis(desk)){ // S'il mise au dessus de la mise à suivre et que personne n'est au tapis
 		desk->numero[numJoueur].argent -= choix;
 		desk->mise[desk->numero[numJoueur].position] += choix;
 		desk->pot += choix;
 		joueurMise(choix);
 	}
+
+	else if(!personneAuTapis(desk) && (choix + desk->mise[desk->numero[numJoueur].position]) >= miseASuivre(desk)) { // S'il y a un tapis et qu'il mise au dessus de celui-ci
+		desk->pot += (grosseMise - desk->mise[desk->numero[numJoueur].position]);  // On augmente le pot de ce qu'il lui reste à remplir pour atteindre le tapis
+		desk->numero[numJoueur].argent -= (grosseMise - desk->mise[desk->numero[numJoueur].position]); // On lui retire cette somme de sa caisse
+		desk->mise[desk->numero[numJoueur].position] = grosseMise; 
+	}
+
 	else if (choix < 0)
 		joueurCouche();
+
 	else
 		choixInvalide();
 }
+
+// Renvoie ce qu'un joueur a déjà misé ce tour-ci
+int miseJoueur(Table *desk, int numJoueur){
+	int mise = 0;
+
+	mise = desk->mise[desk->numero[numJoueur].position];
+
+	return mise; 
+}
+
 
 
 void joueurCheck(){
@@ -246,6 +306,10 @@ void joueurCheck(){
 
 void joueurMise(int mise){
 	printf("Le joueur mise %d.\n", mise);
+}
+
+void joueurFaitTapis(int valeurTapis){
+	printf("Le joueur fait tapis a %d.\n", valeurTapis);
 }
 
 void joueurCouche(){
